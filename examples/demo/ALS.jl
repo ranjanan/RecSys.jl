@@ -5,13 +5,13 @@ function main()
 	I = readdlm("./data/movies.csv",',';header=false)
 
 	#The format is userId , movieId , rating
-	userCol = int(A[:,1])
-	movieCol = int(A[:,2])
-	ratingsCol = int(A[:,3])
+	userCol = round(Int, A[:,1])
+	movieCol = round(Int, A[:,2])
+	ratingsCol = round(Int, A[:,3])
 
-	userColTest = int(T[:,1])
-	movieColTest = int(T[:,2])
-	ratingsColTest = int(T[:,3])
+	userColTest = round(Int, T[:,1])
+	movieColTest = round(Int, T[:,2])
+	ratingsColTest = round(Int, T[:,3])
 
 	#Create Sparse Matrix
 	tempR = sparse(userCol,movieCol,ratingsCol)
@@ -62,7 +62,7 @@ function main()
 	end
 
 	#Update FirstRow as mean of nonZeros of R 
-	M = [FirstRow';MM']
+	M = [FirstRow' ; MM']
 	(r,c,v) = findnz(R)
 	II = sparse(r,c,1)
 	locWtU = sum(II,2)
@@ -78,24 +78,24 @@ function main()
 
 		#Update U
 		for u = 1:n_u
-			movies=(R_t[:,u]).nzind
-			M_u=M[:,movies]
-			vector=M_u*full(R_t[movies,u])
-			matrix=(M_u*M_u')+locWtU[u]*LamI
-			x=matrix\vector
-			U[u,:]=x
+			movies = (R_t[:,u]).nzind
+			M_u = M[:,movies]
+			vector = M_u * full(R_t[movies,u])
+			matrix = (M_u*M_u') + locWtU[u]*LamI
+			x = matrix\vector
+			U[u,:] = x
 			#println(round(x,2))
 		end
 
 		#Update M
-		for m=1:n_m
+		for m = 1:n_m
 			users = (R[:,m]).nzind
-			U_m=U[users,:]
-			vector=U_m'*full(R[users,m])
-			matrix=(U_m'*U_m)+locWtM[m]*LamI
-			x=matrix\vector
+			U_m = U[users,:]
+			vector = U_m'*full(R[users,m])
+			matrix = (U_m'*U_m)+locWtM[m]*LamI
+			x = matrix\vector
 			#println("OK")
-			M[:,m]=x
+			M[:,m] = x
 		 end
 	end
 
