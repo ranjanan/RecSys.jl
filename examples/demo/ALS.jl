@@ -110,6 +110,7 @@
 			M[:,m] = x
 		 end
 	end
+	sum(U), sum(M)
 end
 
 function recommend(user,n)
