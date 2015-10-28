@@ -1,5 +1,5 @@
-function main()
-
+@debug function main()
+	
 	A = readdlm("./data/ml-100k/u1.base",'\t';header=false)
 	T = readdlm("./data/ml-100k/u1.test",'\t';header=false)
 	I = readdlm("./data/movies.csv",',';header=false)
@@ -15,7 +15,6 @@ function main()
 
 	#Create Sparse Matrix
 	tempR = sparse(userCol,movieCol,ratingsCol)
-	#println(tempR)
 
 	(n_u,n_m)=size(tempR)
 	println(n_u)
@@ -76,29 +75,41 @@ function main()
 	#The Alternate Least Squares(ALS)
 	for i = 1:noIters
 
-		#Update U
+		#Preallocation for movies
+		M_u = Array(Array{Float64,2}, n_u)
+		vector_u = Array(Array{Float64,1}, n_u)
+		matrix_u = Array(Array{Float64,2}, n_u)
 		for u = 1:n_u
 			movies = (R_t[:,u]).nzind
-			M_u = M[:,movies]
-			vector = M_u * full(R_t[movies,u])
-			matrix = (M_u*M_u') + locWtU[u]*LamI
-			x = matrix\vector
+			M_u[u] = M[:, movies] 
+			vector_u[u] = M_u[u] * full(R_t[movies, u])
+			matrix_u[u] = (M_u[u] * (M_u[u])') + (locWtU[u] * LamI)
+		end
+
+		#Update U
+		for u = 1:n_u
+			x = matrix_u[u] \ vector_u[u]
 			U[u,:] = x
 			#println(round(x,2))
 		end
 
-		#Update M
+		#Preallocation for users
+		U_m = Array(Array{Float64,2}, n_m)
+		vector_m = Array(Array{Float64,1}, n_m)
+		matrix_m = Array(Array{Float64,2}, n_m)
 		for m = 1:n_m
 			users = (R[:,m]).nzind
-			U_m = U[users,:]
-			vector = U_m'*full(R[users,m])
-			matrix = (U_m'*U_m)+locWtM[m]*LamI
-			x = matrix\vector
-			#println("OK")
+			U_m[m] = U[users, :] 
+			vector_m[m] = (U_m[m]') * full(R[users, m])
+			matrix_m[m] = ((U_m[m])' * U_m[m]) + (locWtM[m] * LamI)
+		end
+
+		#Update M
+		for m = 1:n_m
+			x = matrix_m[m] \ vector_m[m]
 			M[:,m] = x
 		 end
 	end
-
 end
 
 function recommend(user,n)
