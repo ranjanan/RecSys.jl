@@ -1,4 +1,4 @@
-@debug function main()
+function main()
 	
 	A = readdlm("./data/ml-100k/u1.base",'\t';header=false)
 	T = readdlm("./data/ml-100k/u1.test",'\t';header=false)
@@ -87,9 +87,10 @@
 		end
 
 		#Update U
-		for u = 1:n_u
-			x = matrix_u[u] \ vector_u[u]
-			U[u,:] = x
+		@threads all for u = 1:n_u
+			#x = matrix_u[u] \ vector_u[u]
+			#U[u,:] = x
+			U[u,:] = matrix_u[u] \ vector_u[u]
 			#println(round(x,2))
 		end
 
